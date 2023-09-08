@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@chronark/zod-bird':
+    specifier: ^0.2.0
+    version: 0.2.0
   '@types/node':
     specifier: 20.5.9
     version: 20.5.9
@@ -41,6 +44,9 @@ dependencies:
   typescript:
     specifier: 5.2.2
     version: 5.2.2
+  zod:
+    specifier: ^3.22.2
+    version: 3.22.2
 
 packages:
 
@@ -59,6 +65,12 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
+    dev: false
+
+  /@chronark/zod-bird@0.2.0:
+    resolution: {integrity: sha512-xKREVm1igwX08r8Ubw8L1crsu1Ryk6IaVyYqOVkGHATTYr34htyxq8bCZ0PZYAzh4tZRMI7sJKKi3lAodnHiyA==}
+    dependencies:
+      zod: 3.22.2
     dev: false
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.48.0):
@@ -2596,4 +2608,8 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
+
+  /zod@3.22.2:
+    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
     dev: false

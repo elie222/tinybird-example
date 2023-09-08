@@ -1,34 +1,97 @@
+# Tinybird Demo
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tinybird Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Follow [Tinybird Quickstart](https://www.tinybird.co/docs/quick-start-cli.html).
 
-## Learn More
+Install Tinybird CLI:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install tinybird-cli
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Go to: https://ui.tinybird.co/ to create a project and copy an admin token. Then paste it in when prompted:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+tb auth
+```
 
-## Deploy on Vercel
+### Add data to Tinybird
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Note, if you're running these commands on this project the files are located in the `tinybird` folder.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+tb datasource generate https://storage.googleapis.com/tinybird-assets/datasets/guides/events_50M_1.csv
+mv events_50M_1.datasource shopping_data.datasource
+tb push shopping_data.datasource
+tb datasource append shopping_data https://storage.googleapis.com/tinybird-assets/datasets/guides/events_50M_1.csv shopping_data
+```
+
+### Query data from Tinybird
+
+Two steps:
+1. Create a pipe
+2. Publish an API so we can query the pipe
+
+```bash
+tb pipe generate top_10_searched_products "SELECT * FROM shopping_data WHERE event == 'search'"
+```
+
+In the file change `NODE endpoint` to `NODE search_events`.
+
+Add a second node to the file:
+
+```sql
+NODE aggregate_by_product_id
+DESCRIPTION >
+    Create a count of searches aggregated by the product ID
+SQL >
+    SELECT product_id, count() as total FROM search_events
+    GROUP BY product_id
+    ORDER BY total DESC
+```
+
+Add a third node to the file:
+
+```sql
+NODE endpoint
+DESCRIPTION >
+    Exposes top 10 rows as an API
+SQL >
+    SELECT product_id, total FROM aggregate_by_product_id
+    LIMIT 10
+```
+
+Push pipe to Tinybird:
+
+```bash
+tb push top_10_searched_products.pipe
+```
+
+Now we'll publish the API:
+
+```bash
+tb pipe publish top_10_searched_products
+```
+
+Congrats! Now we can query the published API.
+
+```bash
+tb pipe data top_10_searched_products
+```
+
+### Query data from Next.js app
+
+Now that the API endpoint exists we'll make use of it in our app. See `app/api/tinybird/route.ts` for how we query the data. To add new data we can publish events using `app/api/tinybird/publish/route.ts`.

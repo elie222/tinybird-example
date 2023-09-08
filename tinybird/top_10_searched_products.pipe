@@ -1,0 +1,21 @@
+
+NODE search_events
+DESCRIPTION >
+    Generated from the command line
+SQL >
+    SELECT * FROM shopping_data WHERE event == 'search'
+
+NODE aggregate_by_product_id
+DESCRIPTION >
+    Create a count of searches aggregated by the product ID
+SQL >
+    SELECT product_id, count() as total FROM search_events
+    GROUP BY product_id
+    ORDER BY total DESC
+
+NODE endpoint
+DESCRIPTION >
+    Exposes top 10 rows as an API
+SQL >
+    SELECT product_id, total FROM aggregate_by_product_id
+    LIMIT 10

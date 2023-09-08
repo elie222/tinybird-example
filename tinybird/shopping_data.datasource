@@ -1,0 +1,9 @@
+DESCRIPTION >
+    Generated from https://storage.googleapis.com/tinybird-assets/datasets/guides/events_50M_1.csv
+
+SCHEMA >
+    `date` DateTime,
+    `product_id` String,
+    `user_id` Int64,
+    `event` String,
+    `extra_data` String
